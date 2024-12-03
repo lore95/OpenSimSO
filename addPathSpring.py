@@ -11,23 +11,24 @@ def calculateAverageActivation(dir_path):
     min_activation = float('inf')
     min_file = None
 
-    # Iterate over all files in the directory
-    for directory in os.listdir(dir_path):
-        for file_name in directory:
-            file_path = os.path.join(dir_path, file_name)
+    # Iterate over all directories and subdirectories in the given directory
+    for root, dirs, files in os.walk(dir_path):  # Use os.walk() to traverse subdirectories
+        for file_name in files:
             # Check if the file is a `.sto` file and ends with "activation"
-            if os.path.isfile(file_path) and file_name.endswith('activation.sto'):
+            if file_name.endswith('activation.sto'):
+                file_path = os.path.join(root, file_name)  # Full path of the file
+
                 try:
                     # Read the file
                     ACT = pd.read_csv(file_path, delim_whitespace=True, skiprows=8)
                     
-                    # Extract activations
+                    # Extract activations for the muscles
                     muscles = [
                         'tib_ant_r', 'ext_dig_r', 'ext_hal_r', 'per_tert_r', 
                         'med_gas_r', 'soleus_r', 'tib_post_r', 'per_brev_r', 'per_long_r',
                         'rect_fem_r', 'vas_lat_r', 'vas_int_r', 'semiten_r', 'bifemlh_r',
                         'iliacus_r', 'psoas_r', 'sar_r', 'glut_max1_r', 'glut_max2_r',
-                        'glut_max3_r', 'bifemsh_r', 'semimem_r',"grac_r"
+                        'glut_max3_r', 'bifemsh_r', 'semimem_r', 'grac_r'
                     ]
                     
                     # Ensure all required columns exist in the file
@@ -38,20 +39,20 @@ def calculateAverageActivation(dir_path):
                         # Update minimum activation and corresponding file
                         if total_activation < min_activation:
                             min_activation = total_activation
-                            min_file = file_name
+                            min_file = file_path  # Store full path of the file
                     else:
                         print(f"File {file_name} is missing required muscle columns.")
                 
                 except Exception as e:
                     print(f"Error reading file {file_name}: {e}")
-        
-    # Return the file with minimum activation and the value¨
 
+    # Return the file with minimum activation and the value
     for i in range(50):
         print("****************************************")
-    print(min_file)
-    print(min_activation)
+    print(f"File with minimum activation: {min_file}")
+    print(f"Minimum activation value: {min_activation}")
     return min_file, min_activation
+
 
 # def calculateAverageActivation(file_path):
 #     #dorsiflexors
